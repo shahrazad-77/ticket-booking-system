@@ -8,3 +8,4 @@ public class EvenNumberChecker {
         return value % 2 == 0;
     }
 }
+
