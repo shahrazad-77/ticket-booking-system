@@ -56,4 +56,21 @@ class BookingManagerTest {
                 new BookingRequest("C101", "E201", 2, -100)
         );
     }
+
+    @Test
+    void soldOut() {
+
+        IPaymentGateway pg = mock(IPaymentGateway.class);
+        INotificationService ns = mock(INotificationService.class);
+        IEventRepository er = mock(IEventRepository.class);
+        BookingManager bm = new BookingManager(pg, ns, er);
+        BookingRequest request = new BookingRequest("C101", "E201", 2, 1500);
+
+        when(er.isSoldOut("E201")).thenReturn(true);
+        assertThrows(IllegalStateException.class, () -> bm.book(request));
+
+        verify(er).isSoldOut("E201");
+        verifyNoInteractions(pg, ns);
+        verify(er, never()).saveBooking(any());
+    }
 }
