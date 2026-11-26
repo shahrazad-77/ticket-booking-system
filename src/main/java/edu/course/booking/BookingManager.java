@@ -20,8 +20,9 @@ public class BookingManager {
             throw new IllegalArgumentException("Invalid booking request");}
 
         if (eventRepository.isSoldOut(request.getEventId())) {
-            throw new IllegalStateException("ERROR");
-        }
+                throw new IllegalStateException("Event is sold out");
+            }
+
 
         int amount = request.getTickets() * request.getPricePerTicket();
         String transactionId = paymentGateway.processPayment(request.getCustomerId(), amount);
