@@ -19,6 +19,10 @@ public class BookingManager {
                 request.getEventId().isBlank() || request.getTickets() < 1 || request.getTickets() > 5 || request.getPricePerTicket() <= 0) {
             throw new IllegalArgumentException("Invalid booking request");}
 
+        if (eventRepository.isSoldOut(request.getEventId())) {
+            throw new IllegalStateException("ERROR");
+        }
+
         int amount = request.getTickets() * request.getPricePerTicket();
         String transactionId = paymentGateway.processPayment(request.getCustomerId(), amount);
         eventRepository.saveBooking(request);
