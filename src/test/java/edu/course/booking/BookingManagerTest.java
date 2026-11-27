@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
+
 class BookingManagerTest {
 
     @Test
@@ -72,5 +73,25 @@ class BookingManagerTest {
         verify(er).isSoldOut("E201");
         verifyNoInteractions(pg, ns);
         verify(er, never()).saveBooking(any());
+    }
+    @Test
+    void paymentFailed() {
+        IPaymentGateway pg = mock(IPaymentGateway.class);
+        INotificationService ns = mock(INotificationService.class);
+        IEventRepository er = mock(IEventRepository.class);
+
+        BookingManager bm = new BookingManager(pg, ns, er);
+
+        BookingRequest request = new BookingRequest("C101", "E201", 2, 1500);
+
+        when(er.isSoldOut("E201")).thenReturn(false);
+        when(pg.processPayment("C101", 3000)).thenThrow(new RuntimeException("Payment failed"));
+
+
+        assertThrows(RuntimeException.class, () -> bm.book(request));
+
+        verify(pg).processPayment("C101", 3000);
+        verify(er, never()).saveBooking(any());
+        verifyNoInteractions(ns);
     }
 }
